@@ -69,8 +69,30 @@
     }
 }
 
-- (void)deleteSelectedNode {
+- (BOOL)deleteSelectedNode {
+    if (mode == pollingCreateMode) {
+        
+        __block NSMutableIndexSet *delIndexes = [NSMutableIndexSet indexSet];
+        __block BOOL isDeleted = NO;
+        [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
+            if (rootNode.selected) {
+                [delIndexes addIndex:idx];
+                *stop = TRUE;
+            }
+            else {
+                isDeleted = *stop = [rootNode deleteSelectedNode];
+            }
+        }];
+        
+        if (delIndexes.count > 0) {
+            [children removeObjectsAtIndexes:delIndexes];
+            isDeleted = YES;
+        }
+        
+        return isDeleted;
+    }
     
+    return NO;
 }
 
 #pragma mark - Drawing Methods

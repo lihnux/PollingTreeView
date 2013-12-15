@@ -34,7 +34,7 @@
 
 - (id)addNewNodeWithType:(UInt8)type title:(NSString*)title content:(NSString*)content;
 - (void)enterEditSelectedNode;
-- (void)deleteSelectedNode;
+- (BOOL)deleteSelectedNode;
 
 - (void)treeDrawInRect:(NSRect)rect;
 

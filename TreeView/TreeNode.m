@@ -168,6 +168,25 @@
     return NO;
 }
 
+- (BOOL)deleteSelectedNode {
+    if (mode == pollingCreateMode) {
+        __block NSMutableIndexSet *delIndexes = [NSMutableIndexSet indexSet];
+        [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
+            if (child.selected) {
+                [delIndexes addIndex:idx];
+                *stop = YES;
+            }
+        }];
+        
+        if (delIndexes.count > 0) {
+            [children removeObjectsAtIndexes:delIndexes];
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
 #pragma mark - NSText Delegate
 
 - (void)textDidEndEditing:(NSNotification *)notification {

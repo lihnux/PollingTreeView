@@ -70,6 +70,7 @@ enum {
 
 - (id)addNewNodeWithTitle:(NSString*)aTitle content:(NSString*)aContent;
 - (BOOL)enterEditSelectedNode;
+- (BOOL)deleteSelectedNode;
 
 - (void)drawInRect:(NSRect*)rect;
 

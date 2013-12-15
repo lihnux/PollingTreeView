@@ -501,7 +501,7 @@
                 <autoresizingMask key="autoresizingMask"/>
             </scroller>
             <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="cam-Fv-jQg">
-                <rect key="frame" x="464" y="1" width="15" height="473"/>
+                <rect key="frame" x="463" y="1" width="16" height="473"/>
                 <autoresizingMask key="autoresizingMask"/>
             </scroller>
         </scrollView>

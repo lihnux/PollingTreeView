@@ -56,17 +56,21 @@
     NSString *chars = theEvent.charactersIgnoringModifiers;
     unichar aChar = [chars characterAtIndex: 0];
     
+    BOOL isNeedUpdateView = NO;
+    
     switch (aChar) {
         case 3:
         case 13: // Enter Key Event
             [tree enterEditSelectedNode];
             break;
         case 127: // Delete Key Event
+            isNeedUpdateView = [tree deleteSelectedNode];
             break;
-            
         default:
             break;
     }
+    
+    [self setNeedsDisplay:isNeedUpdateView];
     
     //[[self window] makeFirstResponder:self];
 }
