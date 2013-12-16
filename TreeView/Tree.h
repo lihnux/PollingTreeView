@@ -20,6 +20,8 @@
     UInt8           mode;
     
     NSView          *view;
+    
+    NSUInteger      rectInitHeight;
 }
 
 @property (nonatomic, retain)   NSMutableArray  *children;
@@ -33,6 +35,9 @@
 - (id)initWithView:(NSView*)aView;
 
 - (id)addNewNodeWithType:(UInt8)type title:(NSString*)title content:(NSString*)content;
+
+- (BOOL)addRootNode:(UInt8)type;
+- (void)addChildNodeBySelectedNode;
 - (void)enterEditSelectedNode;
 - (BOOL)deleteSelectedNode;
 

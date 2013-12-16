@@ -69,6 +69,7 @@ enum {
 - (id)initWithTree:(Tree*)aTree parent:(TreeNode*)aParent title:(NSString*)aTitle content:(NSString*)aContent type:(UInt8)aType mode:(UInt8)aMode;
 
 - (id)addNewNodeWithTitle:(NSString*)aTitle content:(NSString*)aContent;
+- (BOOL)addNewNodeBySelectedNode;
 - (BOOL)enterEditSelectedNode;
 - (BOOL)deleteSelectedNode;
 

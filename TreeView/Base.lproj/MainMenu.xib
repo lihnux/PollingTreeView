@@ -127,16 +127,28 @@
                         <items>
                             <menuItem title="New Question Sigle" id="eXW-1y-LMx">
                                 <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="addSingleQiz:" target="494" id="OIf-f7-baK"/>
+                                </connections>
                             </menuItem>
                             <menuItem title="New Question Multiple" id="wIB-n7-ByE">
                                 <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="addMultipleQiz:" target="494" id="BTI-be-4jq"/>
+                                </connections>
                             </menuItem>
                             <menuItem title="New Question Short Answer" id="Pfo-Vg-HyW">
                                 <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="addShotAnswerQiz:" target="494" id="RwA-oC-0ZA"/>
+                                </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VZL-LO-0My"/>
                             <menuItem title="Add Answer" id="kMa-Io-ckI">
                                 <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="addAnswer:" target="494" id="nyb-i0-hsi"/>
+                                </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="Uer-eH-92B"/>
                             <menuItem title="Remove" id="f9K-te-2Yt">
@@ -465,11 +477,98 @@
         <window title="TreeView" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="659" y="782" width="480" height="229"/>
+            <rect key="contentRect" x="659" y="782" width="480" height="379"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1178"/>
+            <value key="minSize" type="size" width="480" height="379"/>
+            <value key="maxSize" type="size" width="480" height="379"/>
             <view key="contentView" id="372">
-                <rect key="frame" x="0.0" y="0.0" width="480" height="229"/>
+                <rect key="frame" x="0.0" y="0.0" width="480" height="379"/>
                 <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="TEg-nL-Wan">
+                        <rect key="frame" x="0.0" y="32" width="480" height="347"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <clipView key="contentView" id="15H-yY-RiW">
+                            <rect key="frame" x="1" y="1" width="478" height="345"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <view id="SZR-Sw-ppR" customClass="TreeView">
+                                    <rect key="frame" x="0.0" y="0.0" width="478" height="345"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                </view>
+                            </subviews>
+                        </clipView>
+                        <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="ddP-a1-aTj">
+                            <rect key="frame" x="1" y="330" width="478" height="16"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                        <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="cam-Fv-jQg">
+                            <rect key="frame" x="464" y="1" width="15" height="345"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                    </scrollView>
+                    <popUpButton id="oe2-gx-d8U">
+                        <rect key="frame" x="9" y="4" width="42" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <popUpButtonCell key="cell" type="square" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" pullsDown="YES" id="vdQ-Re-FjA">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <menu key="menu" title="OtherViews" id="u8z-CB-x37">
+                                <items>
+                                    <menuItem state="on" image="NSActionTemplate" hidden="YES" id="O3A-UC-3B1"/>
+                                    <menuItem title="Single Selection Question" id="S5E-4q-WR1">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                        <connections>
+                                            <action selector="addSingleQiz:" target="494" id="7Qs-KY-R2A"/>
+                                        </connections>
+                                    </menuItem>
+                                    <menuItem title="Multiple Selection Question" id="NiQ-q8-G0d">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                        <connections>
+                                            <action selector="addMultipleQiz:" target="494" id="ozz-6c-ZYT"/>
+                                        </connections>
+                                    </menuItem>
+                                    <menuItem title="Short Answer Question" id="jYE-eh-IMy">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                        <connections>
+                                            <action selector="addShotAnswerQiz:" target="494" id="Qtr-FN-4b1"/>
+                                        </connections>
+                                    </menuItem>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
+                    <button id="rvd-O2-a3n">
+                        <rect key="frame" x="55" y="4" width="23" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSAddTemplate" imagePosition="only" alignment="center" alternateImage="NSAddTemplate" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mEg-D9-OB7">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="addAnswer:" target="494" id="5Tu-cR-2fQ"/>
+                        </connections>
+                    </button>
+                    <button id="L47-U4-oLs">
+                        <rect key="frame" x="82" y="4" width="23" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSRemoveTemplate" imagePosition="only" alignment="center" alternateImage="NSRemoveTemplate" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Lfc-KY-7Tt">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="remove:" target="494" id="Xm4-32-P8n"/>
+                        </connections>
+                    </button>
+                    <button id="G4l-Fd-35r">
+                        <rect key="frame" x="373" y="4" width="87" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="square" title="Open Polling" bezelStyle="shadowlessSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3VM-MW-QkS">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="smallSystem"/>
+                        </buttonCell>
+                    </button>
+                </subviews>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="okU-6c-nuq"/>
@@ -479,31 +578,15 @@
         <customObject id="494" customClass="AppDelegate">
             <connections>
                 <outlet property="scrollView" destination="TEg-nL-Wan" id="148-GB-ybZ"/>
+                <outlet property="treeView" destination="SZR-Sw-ppR" id="5rt-V5-1h3"/>
                 <outlet property="window" destination="371" id="flg-Ja-6bQ"/>
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>
-        <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="TEg-nL-Wan">
-            <rect key="frame" x="0.0" y="0.0" width="480" height="475"/>
-            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <clipView key="contentView" id="15H-yY-RiW">
-                <rect key="frame" x="1" y="1" width="478" height="473"/>
-                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                <subviews>
-                    <view id="SZR-Sw-ppR" customClass="TreeView">
-                        <rect key="frame" x="0.0" y="0.0" width="478" height="473"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                    </view>
-                </subviews>
-            </clipView>
-            <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="ddP-a1-aTj">
-                <rect key="frame" x="1" y="458" width="478" height="16"/>
-                <autoresizingMask key="autoresizingMask"/>
-            </scroller>
-            <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="cam-Fv-jQg">
-                <rect key="frame" x="463" y="1" width="16" height="473"/>
-                <autoresizingMask key="autoresizingMask"/>
-            </scroller>
-        </scrollView>
     </objects>
+    <resources>
+        <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="NSAddTemplate" width="8" height="8"/>
+        <image name="NSRemoveTemplate" width="8" height="8"/>
+    </resources>
 </document>

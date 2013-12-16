@@ -7,6 +7,9 @@
 //
 
 #import "AppDelegate.h"
+#import "TreeView.h"
+#import "Tree.h"
+#import "TreeNode.h"
 
 @implementation AppDelegate
 
@@ -14,6 +17,7 @@
 {
     // Insert code here to initialize your application
     
+    /*
     NSRect rc = [window frameRectForContentRect:[scrollView bounds]];
     NSRect winFrm = [window frame];
     
@@ -22,10 +26,36 @@
     
     [window setContentView:scrollView];
     [window setFrame:rc display:YES animate:YES];
+     */
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
     return YES;
+}
+
+- (IBAction)addSingleQiz:(id)sender {
+    [treeView.tree addRootNode:pollingSingleRoot];
+    [treeView setNeedsDisplay:YES];
+}
+
+- (IBAction)addMultipleQiz:(id)sender {
+    [treeView.tree addRootNode:pollingMutipleRoot];
+    [treeView setNeedsDisplay:YES];
+}
+
+- (IBAction)addShotAnswerQiz:(id)sender {
+    [treeView.tree addRootNode:pollingShortAnswerRoot];
+    [treeView setNeedsDisplay:YES];
+}
+
+- (IBAction)addAnswer:(id)sender {
+    [treeView.tree addChildNodeBySelectedNode];
+    [treeView setNeedsDisplay:YES];
+}
+
+- (IBAction)remove:(id)sender {
+    [treeView.tree deleteSelectedNode];
+    [treeView setNeedsDisplay:YES];
 }
 
 @end

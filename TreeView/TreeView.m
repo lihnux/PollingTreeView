@@ -22,20 +22,24 @@
         self.tree = [[Tree alloc] initWithView:self];
         self.tree.mode = pollingCreateMode;
         
-        TreeNode *node = [tree addNewNodeWithType:pollingSingleRoot title:@"test single question" content:nil];
+        /*
+        TreeNode *node = [tree addNewNodeWithType:pollingSingleRoot title:@"Test single question" content:nil];
         
         // add three leaf nodes
         TreeNode *childNode = [node addNewNodeWithTitle:nil content:@"Very Good"];
         [node addNewNodeWithTitle:nil content:@"It's Fine"];
-        [childNode addNewNodeWithTitle:nil content:@"Very Good2"];
+        [childNode addNewNodeWithTitle:nil content:@"It's Fine"];
         [node addNewNodeWithTitle:nil content:@"Just so so"];
         
-        node = [tree addNewNodeWithType:pollingMutipleRoot title:@"test multiple question" content:nil];
+        node = [tree addNewNodeWithType:pollingMutipleRoot title:@"Test Mutiple question" content:nil];
         
         // add three leaf nodes
         [node addNewNodeWithTitle:nil content:@"Very Good2"];
         [node addNewNodeWithTitle:nil content:@"It's Fine2"];
         [node addNewNodeWithTitle:nil content:@"Just so so2"];
+        
+        [tree addNewNodeWithType:pollingShortAnswerRoot title:@"Shot answer question"];
+         */
     }
 }
 
@@ -44,9 +48,13 @@
 - (void)mouseUp:(NSEvent *)theEvent {
     
     if (theEvent.type == NSLeftMouseUp) {
-        BOOL ret = NO;
-        [tree mouseUpHittest:[self convertPoint:[theEvent locationInWindow] fromView:nil] result:&ret];
-        [self setNeedsDisplay:YES];
+        if (theEvent.clickCount == 1) {
+            [tree mouseUpHittest:[self convertPoint:[theEvent locationInWindow] fromView:nil] result:nil];
+            [self setNeedsDisplay:YES];
+        }
+        else {
+            [tree enterEditSelectedNode];
+        }
     }
 }
 
@@ -102,7 +110,7 @@
     // Drawing code here.
     [self initFakeTree];
     
-    [tree treeDrawInRect:[self bounds]];
+    [tree treeDrawInRect:[self frame]];
 }
 
 - (BOOL)isFlipped {

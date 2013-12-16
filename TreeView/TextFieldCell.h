@@ -8,6 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface TextFieldCell : NSTextFieldCell
+@interface TextFieldCell : NSTextFieldCell {
+    BOOL bold;
+    BOOL italic;
+}
+
+@property (nonatomic, assign, getter = isBold)      BOOL bold;
+@property (nonatomic, assign, getter = isItalic)    BOOL italic;
 
 @end
