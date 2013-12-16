@@ -103,7 +103,11 @@
         height = 20.0;
     }
     
-    return NSMakeRect(rect->origin.x, rect->origin.y, rect->size.width, height);
+    textRect = NSMakeRect(rect->origin.x, rect->origin.y, rect->size.width, height);
+    
+    [text drawWithFrame:textRect inView:tree.view];
+    
+    return textRect;
 }
 
 - (void)drawButtonWithFrame:(NSRect*)buttonRect {
@@ -262,16 +266,16 @@
 
 - (void)childNodeDrawInRect:(NSRect*)rect {
     
-    NSRect tmpRect      = NSMakeRect(rect->origin.x + kButtonWidth, rect->origin.y, rect->size.width - kButtonWidth, 0.0);
-    textRect            = [self textFiledRect:&tmpRect withTextCell:tree.text];
-    NSRect buttonRect   = NSMakeRect(rect->origin.x, rect->origin.y, kButtonWidth, textRect.size.height);
+    NSRect tmpRect, buttonRect;
     
-    nodeRect = NSUnionRect(textRect, buttonRect);
+    tmpRect = NSMakeRect(rect->origin.x + kButtonWidth, rect->origin.y, rect->size.width - kButtonWidth, 0.0);
     
+    [self textFiledRect:&tmpRect withTextCell:tree.text];
+    
+    buttonRect  = NSMakeRect(rect->origin.x, rect->origin.y, kButtonWidth, textRect.size.height);
     [self drawButtonWithFrame:&buttonRect];
     
-    textRect.origin.y += 1.0;
-    [tree.text drawWithFrame:textRect inView:tree.view];
+    nodeRect    = NSUnionRect(textRect, buttonRect);
     
     rect->origin.y += kCCMargin + nodeRect.size.height;
 }
@@ -280,8 +284,7 @@
     
     if ([self isRootNode]) {
         // Draw self first
-        textRect = nodeRect = [self textFiledRect:rect withTextCell:tree.text];
-        [tree.text drawWithFrame:nodeRect inView:tree.view];
+        nodeRect = [self textFiledRect:rect withTextCell:tree.text];
         
         // Change the draw rect
         rect->origin.x      += kRCMarginH;
@@ -342,15 +345,9 @@
                 }
             }
             else {
-                __block BOOL childRet = NO;
                 [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
-                    *stop = childRet = [child mouseUpHittest:mousePoint result:result];
+                    *stop = [child mouseUpHittest:mousePoint result:result];
                 }];
-                /*
-                if (result) {
-                    *result = childRet;
-                }
-                */
             }
         }
     }
@@ -361,14 +358,6 @@
             if (result) {
                 *result = YES;
             }
-        }
-        else {
-            ret = NO;
-            /*
-            if (result) {
-                *result = NO;
-            }
-            */
         }
     }
     
