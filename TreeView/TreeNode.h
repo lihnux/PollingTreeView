@@ -12,7 +12,7 @@
 #define kRCMarginH      15.0     // Root and Child     (horizontal)
 #define kRCMarginV      2.0     // Root and Child     (vertical)
 #define kRRMargin       3.0     // Root and Root      (horizontal
-#define kCCMargin       3.0     // Child and Child    (vertical)
+#define kCCMargin       1.0     // Child and Child    (vertical)
 #define kButtonWidth    40.0    // button width
 
 enum {
@@ -71,6 +71,7 @@ enum {
 - (id)addNewNodeWithTitle:(NSString*)aTitle content:(NSString*)aContent;
 - (BOOL)addNewNodeBySelectedNode;
 - (BOOL)enterEditSelectedNode;
+- (BOOL)enterEditByMousePoint:(NSPoint)mousePoint;
 - (BOOL)deleteSelectedNode;
 
 - (void)drawInRect:(NSRect*)rect;

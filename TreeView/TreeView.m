@@ -16,14 +16,14 @@
 
 #pragma mark - Test Methods
 
-- (void)initFakeTree {
+- (void)initTreeWithMode:(UInt8)mode {
+    
     if (tree == nil) {
-        
         self.tree = [[Tree alloc] initWithView:self];
-        self.tree.mode = pollingCreateMode;
         
-        /*
-        TreeNode *node = [tree addNewNodeWithType:pollingSingleRoot title:@"Test single question" content:nil];
+        tree.mode = mode;
+        
+        TreeNode *node = [tree addNewNodeWithType:pollingSingleRoot title:@"Test Single question" content:nil];
         
         // add three leaf nodes
         TreeNode *childNode = [node addNewNodeWithTitle:nil content:@"Very Good"];
@@ -38,9 +38,10 @@
         [node addNewNodeWithTitle:nil content:@"It's Fine2"];
         [node addNewNodeWithTitle:nil content:@"Just so so2"];
         
-        [tree addNewNodeWithType:pollingShortAnswerRoot title:@"Shot answer question"];
-         */
+        node = [tree addNewNodeWithType:pollingShortAnswerRoot title:@"Test Short Answer question" content:@""];
+        [node addNewNodeWithTitle:nil content:@""];
     }
+    tree.mode = mode;
 }
 
 #pragma mark - Mouse Event
@@ -53,7 +54,7 @@
             [self setNeedsDisplay:YES];
         }
         else {
-            [tree enterEditSelectedNode];
+            [tree enterEditMode:[self convertPoint:[theEvent locationInWindow] fromView:nil]];
         }
     }
 }
@@ -108,7 +109,7 @@
     NSRectFill([self bounds]);
 	
     // Drawing code here.
-    [self initFakeTree];
+    [self initTreeWithMode:pollingAnswerMode];
     
     [tree treeDrawInRect:[self frame]];
 }

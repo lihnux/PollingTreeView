@@ -93,11 +93,11 @@
     switch (type) {
         case pollingSingleRoot:
         case pollingMutipleRoot:
-            [newNode addNewNodeWithTitle:nil content:@""];
-            [newNode addNewNodeWithTitle:nil content:@""];
+            [newNode addNewNodeWithTitle:@"" content:@""];
+            [newNode addNewNodeWithTitle:@"" content:@""];
             break;
         case pollingShortAnswerRoot:
-            [newNode addNewNodeWithTitle:nil content:nil];
+            [newNode addNewNodeWithTitle:@"" content:@""];
             break;
         default:
             break;
@@ -115,6 +115,19 @@
     
 }
 
+- (void)enterEditMode:(NSPoint)mousePoint {
+    if (mode == pollingCreateMode) {
+        [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
+            *stop = [rootNode enterEditSelectedNode];
+        }];
+    }
+    else {
+        [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
+            *stop = [rootNode enterEditByMousePoint:mousePoint];
+        }];
+    }
+}
+
 - (void)enterEditSelectedNode {
     
     if (mode == pollingCreateMode) {
@@ -122,6 +135,12 @@
             *stop = [rootNode enterEditSelectedNode];
         }];
     }
+}
+
+- (void)enterEditByMousePoint:(NSPoint)mousePoint {
+    [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
+        *stop = [rootNode enterEditByMousePoint:mousePoint];
+    }];
 }
 
 - (BOOL)deleteSelectedNode {
@@ -213,6 +232,7 @@
                 }
                 break;
             case pollingAnswerMode:
+                ret = *stop = [rootNode mouseUpHittest:mousePoint result:result];
                 break;
             default:
                 break;

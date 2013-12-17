@@ -30,8 +30,8 @@
     if (self) {
         self.tree       = aTree;
         self.parent     = aParent;
-        self.title      = aTitle;
-        self.content    = aContent;
+        self.title      = (aTitle == nil)   ? @"" : aTitle;
+        self.content    = (aContent == nil) ? @"" : aContent;
         self.type       = aType;
         self.mode       = aMode;
         
@@ -70,33 +70,36 @@
     text.bold   = NO;
     text.italic = NO;
     [text setBordered:NO];
+    [text setHighlighted:NO];
     
     if ([self isRootNode]) {
-        if (title.length == 0) {
-            text.title = @"Type your question";
-            text.italic = YES;
-        }
-        else {
-            text.title  = title;
-        }
-        text.bold = YES;
+        text.bold   = YES;
+        text.title  = title;
     }
     else {
-        if (content.length == 0 && self.type != pollingShortAnswer) {
-            text.title = @"Type your selection content";
-            text.italic = YES;
-        }
-        else if (self.type == pollingShortAnswer) {
+        text.title  = content;
+        if (self.type == pollingShortAnswer) {
             [text setBordered:YES];
-            text.title = @"";
-        }
-        else {
-            text.title = content;
+            //[text setHighlighted:selected];
         }
     }
     
-    [text setHighlighted:selected];
-    
+    if (mode == pollingCreateMode) {
+        if ([self isRootNode]) {
+            if (text.title.length == 0) {
+                text.title  = @"Type your question";
+                text.italic = YES;
+            }
+        }
+        else {
+            if (text.title.length == 0 && self.type != pollingShortAnswer) {
+                text.title  = @"Type your selection content";
+                text.italic = YES;
+            }
+        }
+        
+        [text setHighlighted:selected];
+    }
     CGFloat height = [text cellSizeForBounds:NSMakeRect(0.0, 0.0, rect->size.width, 1000.0)].height;
     
     if (height < 20.0) {
@@ -124,7 +127,27 @@
             break;
     }
     
-    [button setTitle:[NSString stringWithFormat:@"%d.", [parent.children indexOfObject:self] + 1]];
+    if (self.selected) {
+        [button setState:NSOnState];
+    }
+    else {
+        [button setState:NSOffState];
+    }
+    
+    NSUInteger idx = [parent.children indexOfObject:self];
+    
+    UInt16 alpha = idx / 26;
+    
+    if (alpha == 0) {
+        button.title = [NSString stringWithFormat:@"%c.", 'a' + idx%26];
+    }
+    else if (alpha > 0 && alpha < 26) {
+        button.title = [NSString stringWithFormat:@"%c%c.", 'a' + alpha - 1, 'a' + idx%26];
+    }
+    else if (alpha >= 26 && alpha < 476) {
+        UInt8 beta = alpha / 26;
+        button.title = [NSString stringWithFormat:@"%c%c%c.", 'a' + beta - 1, 'a' + alpha%26, 'a' + idx%26];
+    }
     
     [button drawWithFrame:*buttonRect inView:tree.view];
 }
@@ -136,6 +159,35 @@
         TreeNode *node = [children objectAtIndex:nextSelectIndex];
         node.selected = YES;
     }
+}
+
+- (NSRect)getWholeNodeArea {
+    
+    if (children.count > 0) {
+        NSRect lastNodeRect = [[children lastObject] nodeRect];
+        return NSMakeRect(nodeRect.origin.x, nodeRect.origin.y, nodeRect.size.width, lastNodeRect.origin.y + lastNodeRect.size.height + kRRMargin - nodeRect.origin.y);
+    }
+    
+    return nodeRect;
+}
+
+- (void)enterEdit {
+    
+    if (editTextView == nil) {
+        editTextView = [[NSText alloc] initWithFrame:textRect];
+    }
+    
+    if ([self isRootNode]) {
+        [tree.text setTitle:title];
+    }
+    else {
+        [tree.text setTitle:content];
+    }
+    [tree.text setBackgroundColor:[NSColor redColor]];
+    [tree.text editWithFrame:textRect inView:tree.view editor:editTextView delegate:self event:nil];
+    [editTextView setBackgroundColor:[NSColor lightGrayColor]];
+    [editTextView setDrawsBackground:YES];
+    [editTextView setSelectedRange:NSMakeRange(0, editTextView.string.length)];
 }
 
 #pragma mark - Tree Node Actions (Add, Delete, Find, Edit)
@@ -194,25 +246,10 @@
         
         if (self.selected) {
             
-            if (self.type == pollingShortAnswer) {
-                return YES;
+            if (self.type != pollingShortAnswer) {
+                [self enterEdit];
             }
             
-            if (editTextView == nil) {
-                editTextView = [[NSText alloc] initWithFrame:textRect];
-            }
-            
-            if ([self isRootNode]) {
-                [tree.text setTitle:title];
-            }
-            else {
-                [tree.text setTitle:content];
-            }
-            [tree.text setBackgroundColor:[NSColor redColor]];
-            [tree.text editWithFrame:textRect inView:tree.view editor:editTextView delegate:self event:nil];
-            [editTextView setBackgroundColor:[NSColor lightGrayColor]];
-            [editTextView setDrawsBackground:YES];
-            [editTextView setSelectedRange:NSMakeRange(0, editTextView.string.length)];
             return YES;
         }
         else {
@@ -225,6 +262,33 @@
         }
         
     }
+    return NO;
+}
+
+- (BOOL)enterEditByMousePoint:(NSPoint)mousePoint {
+    
+    if ([self isRootNode]) {
+        if (NSPointInRect(mousePoint, [self getWholeNodeArea])) {
+            
+            if (NSPointInRect(mousePoint, nodeRect)) {
+                return YES;
+            }
+            else {
+                [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop) {
+                    *stop = [child enterEditByMousePoint:mousePoint];
+                }];
+            }
+        }
+    }
+    else {
+        if (NSPointInRect(mousePoint, nodeRect)) {
+            if (type == pollingShortAnswer) {
+                [self enterEdit];
+            }
+            return YES;
+        }
+    }
+    
     return NO;
 }
 
@@ -325,17 +389,7 @@
     if ([self isRootNode]) {
         // test the Root and Children whole Rect Area
         
-        NSRect wholeRect;
-        
-        if (children.count > 0) {
-            NSRect lastNodeRect = [[children lastObject] nodeRect];
-            wholeRect = NSMakeRect(nodeRect.origin.x, nodeRect.origin.y, nodeRect.size.width, lastNodeRect.origin.y + lastNodeRect.size.height + kRRMargin - nodeRect.origin.y);
-        }
-        else {
-            wholeRect = nodeRect;
-        }
-        
-        if (NSPointInRect(mousePoint, wholeRect)) {
+        if (NSPointInRect(mousePoint, [self getWholeNodeArea])) {
             ret = YES;
             
             if (NSPointInRect(mousePoint, nodeRect)) {
@@ -364,6 +418,59 @@
     return ret;
 }
 
+- (BOOL)answerModeMouseUpHittest:(NSPoint)mousePoint result:(BOOL*)result {
+    
+    BOOL ret = NO;
+    
+    if (result) {
+        *result = NO;
+    }
+    
+    if ([self isRootNode]) {
+        
+        if (NSPointInRect(mousePoint, [self getWholeNodeArea])) {
+            
+            ret = YES;
+            
+            if (!NSPointInRect(mousePoint, nodeRect)) {
+                
+                [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
+                    BOOL oldStop = *stop;
+                    *stop = [child mouseUpHittest:mousePoint result:result];
+                    if (type == pollingSingleRoot) {
+                        *stop = oldStop;
+                    }
+                }];
+            }
+        }
+    }
+    else {
+        if (NSPointInRect(mousePoint, nodeRect)) {
+            if (type == pollingMutiple) {
+                self.selected = !(self.selected);
+            }
+            else {
+                self.selected = YES;
+            }
+            ret = YES;
+            
+            if (result) {
+                *result = YES;
+            }
+        }
+        else {
+            if (type == pollingSingle) {
+                if (self.selected) {
+                    self.selected = NO;
+                }
+            }
+        }
+    }
+    
+    
+    return ret;
+}
+
 - (BOOL)mouseUpHittest:(NSPoint)mousePoint result:(BOOL *)result{
     
     @autoreleasepool {
@@ -371,7 +478,7 @@
             return [self createModeMouseUpHittest:mousePoint result:result];
         }
         else {
-            return NO;
+            return [self answerModeMouseUpHittest:mousePoint result:result];
         }
     }
 }

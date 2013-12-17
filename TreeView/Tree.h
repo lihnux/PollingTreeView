@@ -38,7 +38,9 @@
 
 - (BOOL)addRootNode:(UInt8)type;
 - (void)addChildNodeBySelectedNode;
+- (void)enterEditMode:(NSPoint)mousePoint;
 - (void)enterEditSelectedNode;
+- (void)enterEditByMousePoint:(NSPoint)mousePoint;
 - (BOOL)deleteSelectedNode;
 
 - (void)treeDrawInRect:(NSRect)rect;
