@@ -10,27 +10,27 @@
 
 @implementation TextFieldCell
 
-@synthesize bold;
-@synthesize italic;
-
+// NOTICE: this function must be called before calling the drawWithFrame:inView
+// To make sure the cell's height by the attribute string
 - (NSSize)sizeForCurrentTitle {
     
     @autoreleasepool {
-        NSDictionary            *attributes     = [[[NSMutableDictionary alloc] init] autorelease];
-        NSMutableParagraphStyle *paragrahStyle  = [[[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
+        
+        NSMutableDictionary     *attributes     = [NSMutableDictionary dictionary];
+        NSMutableParagraphStyle *paragrahStyle  = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
         NSFontManager           *fontManager    = [NSFontManager sharedFontManager];
         NSFont                  *font           = nil;
         
         paragrahStyle.lineBreakMode = NSLineBreakByWordWrapping;
         [attributes setValue:paragrahStyle forKey:NSParagraphStyleAttributeName];
         
-        if (bold && italic) {
+        if (self.bold && self.italic) {
             font = [fontManager fontWithFamily:@"Helvetica" traits:NSBoldFontMask | NSItalicFontMask weight:0 size:14.5];
         }
-        else if (bold) {
+        else if (self.bold) {
             font = [fontManager fontWithFamily:@"Helvetica" traits:NSBoldFontMask weight:0 size:14.5];
         }
-        else if (italic) {
+        else if (self.italic) {
             font = [fontManager fontWithFamily:@"Helvetica" traits:NSItalicFontMask weight:0 size:13.0];
         }
         else {
@@ -39,6 +39,7 @@
         [attributes setValue:font forKey:NSFontAttributeName];
         
         return [self.title sizeWithAttributes:attributes];
+
     }
 }
 
@@ -46,27 +47,29 @@
     //[super drawWithFrame:cellFrame inView:controlView];
     
     @autoreleasepool {
-        NSDictionary            *attributes     = [[[NSMutableDictionary alloc] init] autorelease];
-        NSMutableParagraphStyle *paragrahStyle  = [[[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
+        
+        NSMutableDictionary     *attributes     = [NSMutableDictionary dictionary];
+        NSMutableParagraphStyle *paragrahStyle  = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
         NSFontManager           *fontManager    = [NSFontManager sharedFontManager];
         NSFont                  *font           = nil;
         
         paragrahStyle.lineBreakMode = NSLineBreakByWordWrapping;
         [attributes setValue:paragrahStyle forKey:NSParagraphStyleAttributeName];
         
-        if (bold && italic) {
+        if (self.bold && self.italic) {
             font = [fontManager fontWithFamily:@"Helvetica" traits:NSBoldFontMask | NSItalicFontMask weight:0 size:14.5];
         }
-        else if (bold) {
+        else if (self.bold) {
             font = [fontManager fontWithFamily:@"Helvetica" traits:NSBoldFontMask weight:0 size:14.5];
         }
-        else if (italic) {
+        else if (self.italic) {
             font = [fontManager fontWithFamily:@"Helvetica" traits:NSItalicFontMask weight:0 size:13.0];
         }
         else {
             font = [fontManager fontWithFamily:@"Helvetica" traits:NSUnboldFontMask | NSUnitalicFontMask weight:0 size:13.0];
         }
         [attributes setValue:font forKey:NSFontAttributeName];
+
         
         if (self.isHighlighted) {
             
@@ -87,7 +90,7 @@
                 NSFrameRect(cellFrame);
             }
             
-            if (italic) {
+            if (self.italic) {
                 [attributes setValue:[NSColor grayColor] forKey:NSBackgroundColorAttributeName];
                 [attributes setValue:[NSColor whiteColor] forKey:NSForegroundColorAttributeName];
             }

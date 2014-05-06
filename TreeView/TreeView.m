@@ -12,36 +12,16 @@
 
 @implementation TreeView
 
-@synthesize tree;
-
 #pragma mark - Test Methods
 
 - (void)initTreeWithMode:(UInt8)mode {
     
-    if (tree == nil) {
-        self.tree = [[Tree alloc] initWithView:self];
-        
-        tree.mode = mode;
-        
-        TreeNode *node = [tree addNewNodeWithType:pollingSingleRoot title:@"Test Single question" content:nil];
-        
-        // add three leaf nodes
-        TreeNode *childNode = [node addNewNodeWithTitle:nil content:@"Very Good"];
-        [node addNewNodeWithTitle:nil content:@"It's Fine"];
-        [childNode addNewNodeWithTitle:nil content:@"It's Fine"];
-        [node addNewNodeWithTitle:nil content:@"Just so so"];
-        
-        node = [tree addNewNodeWithType:pollingMutipleRoot title:@"Test Mutiple question" content:nil];
-        
-        // add three leaf nodes
-        [node addNewNodeWithTitle:nil content:@"Very Good2"];
-        [node addNewNodeWithTitle:nil content:@"It's Fine2"];
-        [node addNewNodeWithTitle:nil content:@"Just so so2"];
-        
-        node = [tree addNewNodeWithType:pollingShortAnswerRoot title:@"Test Short Answer question" content:@""];
-        [node addNewNodeWithTitle:nil content:@""];
-    }
-    tree.mode = mode;
+    self.tree = [[Tree alloc] initWithView:self];
+    self.tree.mode = mode;
+}
+
+- (void)switchMode {
+    [self.tree switchMode:!(self.tree.mode)];
 }
 
 #pragma mark - Mouse Event
@@ -50,11 +30,11 @@
     
     if (theEvent.type == NSLeftMouseUp) {
         if (theEvent.clickCount == 1) {
-            [tree mouseUpHittest:[self convertPoint:[theEvent locationInWindow] fromView:nil] result:nil];
+            [self.tree mouseUpHittest:[self convertPoint:[theEvent locationInWindow] fromView:nil] result:nil];
             [self setNeedsDisplay:YES];
         }
         else {
-            [tree enterEditMode:[self convertPoint:[theEvent locationInWindow] fromView:nil]];
+            [self.tree enterEditMode:[self convertPoint:[theEvent locationInWindow] fromView:nil]];
         }
     }
 }
@@ -70,10 +50,10 @@
     switch (aChar) {
         case 3:
         case 13: // Enter Key Event
-            [tree enterEditSelectedNode];
+            [self.tree enterEditSelectedNode];
             break;
         case 127: // Delete Key Event
-            isNeedUpdateView = [tree deleteSelectedNode];
+            isNeedUpdateView = [self.tree deleteSelectedNode];
             break;
         default:
             break;
@@ -95,11 +75,6 @@
     return self;
 }
 
-- (void)dealloc {
-    
-    [tree   release];
-    [super  dealloc];
-}
 
 - (void)drawRect:(NSRect)dirtyRect
 {
@@ -107,11 +82,8 @@
     
     [[NSColor whiteColor] set];
     NSRectFill([self bounds]);
-	
-    // Drawing code here.
-    [self initTreeWithMode:pollingCreateMode];
-    
-    [tree treeDrawInRect:[self frame]];
+	   
+    [self.tree treeDrawInRect:[self frame]];
 }
 
 - (BOOL)isFlipped {

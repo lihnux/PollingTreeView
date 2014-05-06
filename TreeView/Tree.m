@@ -11,12 +11,6 @@
 #import "TextFieldCell.h"
 
 @implementation Tree
-@synthesize children;
-@synthesize mode;
-@synthesize view;
-@synthesize text;
-@synthesize radioButton;
-@synthesize switchButton;
 
 #pragma mark - Life Cycle
 
@@ -24,37 +18,41 @@
     self = [super self];
     
     if (self) {
-        view = aView;
-        self.children = [[NSMutableArray alloc] init];
+        self.view = aView;
+        self.children = [NSMutableArray array];
         
-        text = [[TextFieldCell alloc] init];
-        [text setWraps:YES];
-        [text setEditable:YES];
+        self.text = [[TextFieldCell alloc] init];
+        [self.text setWraps:YES];
+        [self.text setEditable:YES];
         
-        radioButton = [[NSButtonCell alloc] init];
-        [radioButton setWraps:YES];
-        [radioButton setButtonType:NSRadioButton];
+        self.radioButton = [[NSButtonCell alloc] init];
+        [self.radioButton setWraps:YES];
+        [self.radioButton setButtonType:NSRadioButton];
         
-        switchButton = [[NSButtonCell alloc] init];
-        [switchButton setWraps:YES];
-        [switchButton setButtonType:NSSwitchButton];
+        self.switchButton = [[NSButtonCell alloc] init];
+        [self.switchButton setWraps:YES];
+        [self.switchButton setButtonType:NSSwitchButton];
     }
     
     return self;
 }
 
-- (void)dealloc {
+- (void)switchMode:(UInt8)mode {
     
-    [children   release];
-    [super      dealloc];
+    self.mode = mode;
+    
+    for (TreeNode * node in self.children) {
+        [node switchMode:mode];
+    }
 }
+
 
 #pragma mark - Prviate Methods
 - (void)swithSelectedNodeByDeleteIndex:(NSUInteger)delIndex {
     
-    if (children.count > 0) {
-        NSUInteger nextSelectIndex = (delIndex <= children.count - 1) ? delIndex : (children.count - 1);
-        TreeNode *node = [children objectAtIndex:nextSelectIndex];
+    if (self.children.count > 0) {
+        NSUInteger nextSelectIndex = (delIndex <= self.children.count - 1) ? delIndex : (self.children.count - 1);
+        TreeNode *node = [self.children objectAtIndex:nextSelectIndex];
         node.selected = YES;
     }
 }
@@ -63,30 +61,30 @@
 
 - (id)addNewNodeWithType:(UInt8)type title:(NSString*)title content:(NSString*)content {
     
-    TreeNode *newNode = [[[TreeNode alloc] initWithTree:self parent:nil title:title content:content type:type mode:mode] autorelease];
+    TreeNode *newNode = [[TreeNode alloc] initWithTree:self parent:nil title:title content:content type:type mode:self.mode];
     
-    [children addObject:newNode];
+    [self.children addObject:newNode];
     
     return newNode;
 }
 
 - (BOOL)addRootNode:(UInt8)type {
     
-    TreeNode *newNode = [[[TreeNode alloc] initWithTree:self parent:nil title:@"" content:@"" type:type mode:mode] autorelease];
+    TreeNode *newNode = [[TreeNode alloc] initWithTree:self parent:nil title:@"" content:@"" type:type mode:self.mode];
     
-    __block NSMutableIndexSet *selectedIdx = [NSMutableIndexSet indexSet];
-    [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
+    __weak NSMutableIndexSet *selectedIdx = [NSMutableIndexSet indexSet];
+    [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
         if (rootNode.selected) {
             [selectedIdx addIndex:idx];
             *stop = YES;
         }
     }];
     
-    if (children.count > 0 && selectedIdx.count > 0) {
-        ([selectedIdx firstIndex] == children.count - 1) ? [children addObject:newNode] : [children insertObject:newNode atIndex:[selectedIdx firstIndex] + 1];
+    if (self.children.count > 0 && selectedIdx.count > 0) {
+        ([selectedIdx firstIndex] == self.children.count - 1) ? [self.children addObject:newNode] : [self.children insertObject:newNode atIndex:[selectedIdx firstIndex] + 1];
     }
     else {
-        [children addObject:newNode];
+        [self.children addObject:newNode];
     }
     
     // Add the some new child for the new root node
@@ -107,8 +105,8 @@
 }
 
 - (void)addChildNodeBySelectedNode {
-    if (mode == pollingCreateMode) {
-        [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
+    if (self.mode == pollingCreateMode) {
+        [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
             *stop = [rootNode addNewNodeBySelectedNode];
         }];
     }
@@ -116,13 +114,13 @@
 }
 
 - (void)enterEditMode:(NSPoint)mousePoint {
-    if (mode == pollingCreateMode) {
-        [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
+    if (self.mode == pollingCreateMode) {
+        [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
             *stop = [rootNode enterEditSelectedNode];
         }];
     }
     else {
-        [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
+        [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
             *stop = [rootNode enterEditByMousePoint:mousePoint];
         }];
     }
@@ -130,26 +128,26 @@
 
 - (void)enterEditSelectedNode {
     
-    if (mode == pollingCreateMode) {
-        [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
+    if (self.mode == pollingCreateMode) {
+        [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
             *stop = [rootNode enterEditSelectedNode];
         }];
     }
 }
 
 - (void)enterEditByMousePoint:(NSPoint)mousePoint {
-    [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
+    [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
         *stop = [rootNode enterEditByMousePoint:mousePoint];
     }];
 }
 
 - (BOOL)deleteSelectedNode {
-    if (mode == pollingCreateMode) {
+    if (self.mode == pollingCreateMode) {
         
-        __block NSMutableIndexSet *delRootIndex         = [NSMutableIndexSet indexSet];
-        __block NSMutableIndexSet *delChildRootIndex    = [NSMutableIndexSet indexSet];
+        __weak NSMutableIndexSet *delRootIndex         = [NSMutableIndexSet indexSet];
+        __weak NSMutableIndexSet *delChildRootIndex    = [NSMutableIndexSet indexSet];
         __block BOOL isDeleted = NO;
-        [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
+        [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
             if (rootNode.selected) {
                 [delRootIndex addIndex:idx];
                 *stop = TRUE;
@@ -163,15 +161,15 @@
         }];
         
         if (delRootIndex.count > 0) {
-            [children removeObjectsAtIndexes:delRootIndex];
+            [self.children removeObjectsAtIndexes:delRootIndex];
             isDeleted = YES;
             
             [self swithSelectedNodeByDeleteIndex:[delRootIndex firstIndex]];
         }
         else if (delChildRootIndex.count > 0) {
-            TreeNode *node = [children objectAtIndex:[delChildRootIndex firstIndex]];
+            TreeNode *node = [self.children objectAtIndex:[delChildRootIndex firstIndex]];
             if (node.type == pollingShortAnswerRoot || node.children.count < 2) {
-                [children removeObjectsAtIndexes:delChildRootIndex];
+                [self.children removeObjectsAtIndexes:delChildRootIndex];
                 [self swithSelectedNodeByDeleteIndex:[delChildRootIndex firstIndex]];
             }
         }
@@ -192,18 +190,18 @@
     
     __block NSRect nodeRect = NSMakeRect(kMargin, kMargin, rect.size.width - kMargin * 2, 0.0);
     
-    [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
+    [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop){
         [rootNode drawInRect:&nodeRect];
     }];
     
     if (nodeRect.origin.y + kMargin > rect.size.height) {
         NSRect newRect = NSMakeRect(rect.origin.x, rect.origin.y, rect.size.width, nodeRect.origin.y + kMargin);
-        [view setFrame:newRect];
+        [self.view setFrame:newRect];
     }
     else {
         if (rect.size.height > rectInitHeight) {
             NSRect newRect = NSMakeRect(rect.origin.x, rect.origin.y, rect.size.width, nodeRect.origin.y + kMargin);
-            [view setFrame:newRect];
+            [self.view setFrame:newRect];
         }
     }
 }
@@ -215,9 +213,9 @@
     __block BOOL        ret     = NO;
     __block NSUInteger  stopIdx = NSUIntegerMax;
     
-    [children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
+    [self.children enumerateObjectsUsingBlock:^(TreeNode *rootNode, NSUInteger idx, BOOL *stop) {
         
-        switch (mode) {
+        switch (self.mode) {
             case pollingCreateMode:
                 if (idx > stopIdx) {
                     [rootNode clearAllSelectState];

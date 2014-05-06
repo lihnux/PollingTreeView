@@ -11,16 +11,6 @@
 #import "TextFieldCell.h"
 
 @implementation TreeNode
-@synthesize tree;
-@synthesize parent;
-@synthesize title;
-@synthesize content;
-@synthesize selected;
-@synthesize type;
-@synthesize mode;
-@synthesize children;
-@synthesize nodeRect;
-@synthesize textRect;
 
 #pragma mark - Life Cycle
 
@@ -43,26 +33,29 @@
     return self;
 }
 
-- (void)dealloc {
-    [editTextView   release];
-    [title          release];
-    [content        release];
-    [children       release];
+- (void)switchMode:(UInt8)mode {
     
-    [super dealloc];
+    self.mode = mode;
+    
+    if ([self isRootNode]) {
+        for (TreeNode * node in self.children) {
+            [node switchMode:mode];
+        }
+    }
 }
+
 
 #pragma mark - Private Help Methods
 
 - (BOOL)isRootNode {
-    if (type & pollingRoot) {
+    if (self.type & pollingRoot) {
         return YES;
     }
     return NO;
 }
 
 - (UInt8)removeRootType {
-    return type & ~(pollingRoot);
+    return self.type & ~(pollingRoot);
 }
 
 - (NSRect)textFiledRect:(NSRect*)rect withTextCell:(TextFieldCell*)text{
@@ -74,17 +67,16 @@
     
     if ([self isRootNode]) {
         text.bold   = YES;
-        text.title  = title;
+        text.title  = self.title;
     }
     else {
-        text.title  = content;
+        text.title  = self.content;
         if (self.type == pollingShortAnswer) {
             [text setBordered:YES];
-            //[text setHighlighted:selected];
         }
     }
     
-    if (mode == pollingCreateMode) {
+    if (self.mode == pollingCreateMode) {
         if ([self isRootNode]) {
             if (text.title.length == 0) {
                 text.title  = @"Type your question";
@@ -98,9 +90,8 @@
             }
         }
         
-        [text setHighlighted:selected];
+        [text setHighlighted:self.selected];
     }
-    //CGFloat height = [text cellSizeForBounds:NSMakeRect(0.0, 0.0, rect->size.width, 1000.0)].height;
     
     CGFloat height = [text sizeForCurrentTitle].height + 3.0;
     
@@ -108,85 +99,89 @@
         height = 20.0;
     }
     
-    textRect = NSMakeRect(rect->origin.x, rect->origin.y, rect->size.width, height);
+    self.textRect = NSMakeRect(rect->origin.x, rect->origin.y, rect->size.width, height);
     
-    [text drawWithFrame:textRect inView:tree.view];
+    [text drawWithFrame:self.textRect inView:self.tree.view];
     
-    return textRect;
+    return self.textRect;
 }
 
 - (void)drawButtonWithFrame:(NSRect*)buttonRect {
     
     NSButtonCell *button = nil;
-    switch (type) {
+    switch (self.type) {
         case pollingSingle:
-            button = tree.radioButton;
+            button = self.tree.radioButton;
             break;
         case pollingMutiple:
-            button = tree.switchButton;
+            button = self.tree.switchButton;
             break;
         default:
             break;
     }
     
-    if (self.selected) {
-        [button setState:NSOnState];
-    }
-    else {
-        [button setState:NSOffState];
+    if (self.mode == pollingAnswerMode) {
+        if (self.selected) {
+            [button setState:NSOnState];
+        }
+        else {
+            [button setState:NSOffState];
+        }
+
     }
     
-    NSUInteger idx = [parent.children indexOfObject:self];
+    
+    NSUInteger idx = [self.parent.children indexOfObject:self];
     
     UInt16 alpha = idx / 26;
     
     if (alpha == 0) {
-        button.title = [NSString stringWithFormat:@"%c.", 'a' + idx%26];
+        button.title = [NSString stringWithFormat:@"%c.", (char)('a' + idx%26)];
     }
     else if (alpha > 0 && alpha < 26) {
-        button.title = [NSString stringWithFormat:@"%c%c.", 'a' + alpha - 1, 'a' + idx%26];
+        button.title = [NSString stringWithFormat:@"%c%c.", (char)('a' + alpha - 1), (char)('a' + idx%26)];
     }
     else if (alpha >= 26 && alpha < 476) {
         UInt8 beta = alpha / 26;
-        button.title = [NSString stringWithFormat:@"%c%c%c.", 'a' + beta - 1, 'a' + alpha%26, 'a' + idx%26];
+        button.title = [NSString stringWithFormat:@"%c%c%c.", (char)('a' + beta - 1), (char)('a' + alpha%26), (char)('a' + idx%26)];
     }
     
-    [button drawWithFrame:*buttonRect inView:tree.view];
+    [button drawWithFrame:*buttonRect inView:self.tree.view];
 }
 
 - (void)swithSelectedNodeByDeleteIndex:(NSUInteger)delIndex {
     
-    if (children.count > 0) {
-        NSUInteger nextSelectIndex = (delIndex <= children.count - 1) ? delIndex : (children.count - 1);
-        TreeNode *node = [children objectAtIndex:nextSelectIndex];
+    if (self.children.count > 0) {
+        NSUInteger nextSelectIndex = (delIndex <= self.children.count - 1) ? delIndex : (self.children.count - 1);
+        TreeNode *node = [self.children objectAtIndex:nextSelectIndex];
         node.selected = YES;
     }
 }
 
 - (NSRect)getWholeNodeArea {
     
-    if (children.count > 0) {
-        NSRect lastNodeRect = [[children lastObject] nodeRect];
-        return NSMakeRect(nodeRect.origin.x, nodeRect.origin.y, nodeRect.size.width, lastNodeRect.origin.y + lastNodeRect.size.height + kRRMargin - nodeRect.origin.y);
+    if (self.children.count > 0) {
+        NSRect lastNodeRect = [[self.children lastObject] nodeRect];
+        return NSMakeRect(self.nodeRect.origin.x, self.nodeRect.origin.y, self.nodeRect.size.width, lastNodeRect.origin.y + lastNodeRect.size.height + kRRMargin - self.nodeRect.origin.y);
     }
     
-    return nodeRect;
+    return self.nodeRect;
 }
 
 - (void)enterEdit {
     
     if (editTextView == nil) {
-        editTextView = [[NSText alloc] initWithFrame:textRect];
+        editTextView = [[NSText alloc] initWithFrame:self.textRect];
     }
     
     if ([self isRootNode]) {
-        [tree.text setTitle:title];
+        [self.tree.text setTitle:self.title];
     }
     else {
-        [tree.text setTitle:content];
+        [self.tree.text setTitle:self.content];
     }
-    [tree.text setBackgroundColor:[NSColor redColor]];
-    [tree.text editWithFrame:textRect inView:tree.view editor:editTextView delegate:self event:nil];
+    [self.tree.text setBackgroundColor:[NSColor redColor]];
+    [self.tree.text editWithFrame:self.textRect inView:self.tree.view editor:editTextView delegate:self event:nil];
     [editTextView setBackgroundColor:[NSColor lightGrayColor]];
     [editTextView setDrawsBackground:YES];
     [editTextView setSelectedRange:NSMakeRange(0, editTextView.string.length)];
@@ -200,18 +195,18 @@
         TreeNode *newNode = nil;
         
         if ([self isRootNode]) {
-            newNode = [[[TreeNode alloc] initWithTree:tree parent:self title:aTitle content:aContent type:[self removeRootType] mode:mode] autorelease];
-            [children addObject:newNode];
+            newNode = [[TreeNode alloc] initWithTree:self.tree parent:self title:aTitle content:aContent type:[self removeRootType] mode:self.mode];
+            [self.children addObject:newNode];
         }
         else {
-            NSUInteger idx = [parent.children indexOfObject:self];
+            NSUInteger idx = [self.parent.children indexOfObject:self];
             if (idx != NSNotFound) {
-                newNode = [[[TreeNode alloc] initWithTree:tree parent:parent title:aTitle content:aContent type:type mode:mode] autorelease];
-                if (idx == parent.children.count - 1) {
-                    [parent.children addObject:newNode];
+                newNode = [[TreeNode alloc] initWithTree:self.tree parent:self.parent title:aTitle content:aContent type:self.type mode:self.mode];
+                if (idx == self.parent.children.count - 1) {
+                    [self.parent.children addObject:newNode];
                 }
                 else {
-                    [parent.children insertObject:newNode atIndex:idx + 1];
+                    [self.parent.children insertObject:newNode atIndex:idx + 1];
                 }
             }
         }
@@ -221,7 +216,7 @@
 }
 
 - (BOOL)addNewNodeBySelectedNode {
-    if (mode == pollingCreateMode) {
+    if (self.mode == pollingCreateMode) {
         if (self.selected) {
             if (self.type == pollingShortAnswerRoot || self.type == pollingShortAnswerRoot) {
                 return YES;
@@ -231,7 +226,7 @@
         }
         else {
             __block BOOL ret = NO;
-            [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop) {
+            [self.children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop) {
                 ret = *stop = [child addNewNodeBySelectedNode];
             }];
             
@@ -244,7 +239,7 @@
 
 - (BOOL)enterEditSelectedNode {
     
-    if (mode == pollingCreateMode) {
+    if (self.mode == pollingCreateMode) {
         
         if (self.selected) {
             
@@ -256,7 +251,7 @@
         }
         else {
             __block BOOL ret = NO;
-            [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop) {
+            [self.children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop) {
                 ret = *stop = [child enterEditSelectedNode];
             }];
             
@@ -272,19 +267,19 @@
     if ([self isRootNode]) {
         if (NSPointInRect(mousePoint, [self getWholeNodeArea])) {
             
-            if (NSPointInRect(mousePoint, nodeRect)) {
+            if (NSPointInRect(mousePoint, self.nodeRect)) {
                 return YES;
             }
             else {
-                [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop) {
+                [self.children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop) {
                     *stop = [child enterEditByMousePoint:mousePoint];
                 }];
             }
         }
     }
     else {
-        if (NSPointInRect(mousePoint, nodeRect)) {
-            if (type == pollingShortAnswer) {
+        if (NSPointInRect(mousePoint, self.nodeRect)) {
+            if (self.type == pollingShortAnswer) {
                 [self enterEdit];
             }
             return YES;
@@ -295,9 +290,9 @@
 }
 
 - (BOOL)deleteSelectedNode {
-    if (mode == pollingCreateMode) {
-        __block NSMutableIndexSet *delIndexes = [NSMutableIndexSet indexSet];
-        [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
+    if (self.mode == pollingCreateMode) {
+        __weak NSMutableIndexSet *delIndexes = [NSMutableIndexSet indexSet];
+        [self.children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
             if (child.selected) {
                 [delIndexes addIndex:idx];
                 *stop = YES;
@@ -305,7 +300,7 @@
         }];
         
         if (delIndexes.count > 0) {
-            [children removeObjectsAtIndexes:delIndexes];
+            [self.children removeObjectsAtIndexes:delIndexes];
             [self swithSelectedNodeByDeleteIndex:[delIndexes firstIndex]];
             return YES;
         }
@@ -325,7 +320,7 @@
         self.content = [editTextView string];
     }
     
-    [tree.text endEditing:editTextView];
+    [self.tree.text endEditing:editTextView];
 }
 
 #pragma mark - Drawing Methods
@@ -336,30 +331,30 @@
     
     tmpRect = NSMakeRect(rect->origin.x + kButtonWidth, rect->origin.y, rect->size.width - kButtonWidth, 0.0);
     
-    [self textFiledRect:&tmpRect withTextCell:tree.text];
+    [self textFiledRect:&tmpRect withTextCell:self.tree.text];
     
-    buttonRect  = NSMakeRect(rect->origin.x, rect->origin.y, kButtonWidth, textRect.size.height);
+    buttonRect  = NSMakeRect(rect->origin.x, rect->origin.y, kButtonWidth, self.textRect.size.height);
     [self drawButtonWithFrame:&buttonRect];
     
-    nodeRect    = NSUnionRect(textRect, buttonRect);
+    self.nodeRect = NSUnionRect(self.textRect, buttonRect);
     
-    rect->origin.y += kCCMargin + nodeRect.size.height;
+    rect->origin.y += kCCMargin + self.nodeRect.size.height;
 }
 
 - (void)drawInRect:(NSRect*)rect {
     
     if ([self isRootNode]) {
         // Draw self first
-        nodeRect = [self textFiledRect:rect withTextCell:tree.text];
+        self.nodeRect = [self textFiledRect:rect withTextCell:self.tree.text];
         
         // Change the draw rect
         rect->origin.x      += kRCMarginH;
-        rect->origin.y      += kRCMarginV + nodeRect.size.height;
+        rect->origin.y      += kRCMarginV + self.nodeRect.size.height;
         rect->size.width    -= kRCMarginH;
         
         // Draw the child nodes
-        for (NSUInteger idx = 0; idx < children.count; idx++) {
-            TreeNode *child = [children objectAtIndex:idx];
+        for (NSUInteger idx = 0; idx < self.children.count; idx++) {
+            TreeNode *child = [self.children objectAtIndex:idx];
             [child childNodeDrawInRect:rect];
         }
         
@@ -373,7 +368,7 @@
 
 - (void)clearAllSelectState {
     self.selected = NO;
-    [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
+    [self.children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
         child.selected = NO;
     }];
 }
@@ -394,21 +389,21 @@
         if (NSPointInRect(mousePoint, [self getWholeNodeArea])) {
             ret = YES;
             
-            if (NSPointInRect(mousePoint, nodeRect)) {
+            if (NSPointInRect(mousePoint, self.nodeRect)) {
                 self.selected = YES;
                 if (result) {
                     *result = YES;
                 }
             }
             else {
-                [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
+                [self.children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
                     *stop = [child mouseUpHittest:mousePoint result:result];
                 }];
             }
         }
     }
     else {
-        if (NSPointInRect(mousePoint, nodeRect)) {
+        if (NSPointInRect(mousePoint, self.nodeRect)) {
             self.selected = YES;
             ret = YES;
             if (result) {
@@ -434,12 +429,12 @@
             
             ret = YES;
             
-            if (!NSPointInRect(mousePoint, nodeRect)) {
+            if (!NSPointInRect(mousePoint, self.nodeRect)) {
                 
-                [children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
+                [self.children enumerateObjectsUsingBlock:^(TreeNode *child, NSUInteger idx, BOOL *stop){
                     BOOL oldStop = *stop;
                     *stop = [child mouseUpHittest:mousePoint result:result];
-                    if (type == pollingSingleRoot) {
+                    if (self.type == pollingSingleRoot) {
                         *stop = oldStop;
                     }
                 }];
@@ -447,8 +442,8 @@
         }
     }
     else {
-        if (NSPointInRect(mousePoint, nodeRect)) {
-            if (type == pollingMutiple) {
+        if (NSPointInRect(mousePoint, self.nodeRect)) {
+            if (self.type == pollingMutiple) {
                 self.selected = !(self.selected);
             }
             else {
@@ -461,7 +456,7 @@
             }
         }
         else {
-            if (type == pollingSingle) {
+            if (self.type == pollingSingle) {
                 if (self.selected) {
                     self.selected = NO;
                 }
@@ -476,7 +471,7 @@
 - (BOOL)mouseUpHittest:(NSPoint)mousePoint result:(BOOL *)result{
     
     @autoreleasepool {
-        if (mode == pollingCreateMode) {
+        if (self.mode == pollingCreateMode) {
             return [self createModeMouseUpHittest:mousePoint result:result];
         }
         else {

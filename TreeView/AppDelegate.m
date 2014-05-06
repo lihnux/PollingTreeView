@@ -16,17 +16,8 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     // Insert code here to initialize your application
-    
-    /*
-    NSRect rc = [window frameRectForContentRect:[scrollView bounds]];
-    NSRect winFrm = [window frame];
-    
-    rc.origin = winFrm.origin;
-    rc.origin.y -= (rc.size.height - winFrm.size.height);
-    
-    [window setContentView:scrollView];
-    [window setFrame:rc display:YES animate:YES];
-     */
+        
+    [self.treeView initTreeWithMode:pollingCreateMode];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
@@ -34,28 +25,34 @@
 }
 
 - (IBAction)addSingleQiz:(id)sender {
-    [treeView.tree addRootNode:pollingSingleRoot];
-    [treeView setNeedsDisplay:YES];
+    [self.treeView.tree addRootNode:pollingSingleRoot];
+    [self.treeView setNeedsDisplay:YES];
 }
 
 - (IBAction)addMultipleQiz:(id)sender {
-    [treeView.tree addRootNode:pollingMutipleRoot];
-    [treeView setNeedsDisplay:YES];
+    [self.treeView.tree addRootNode:pollingMutipleRoot];
+    [self.treeView setNeedsDisplay:YES];
 }
 
 - (IBAction)addShotAnswerQiz:(id)sender {
-    [treeView.tree addRootNode:pollingShortAnswerRoot];
-    [treeView setNeedsDisplay:YES];
+    [self.treeView.tree addRootNode:pollingShortAnswerRoot];
+    [self.treeView setNeedsDisplay:YES];
 }
 
 - (IBAction)addAnswer:(id)sender {
-    [treeView.tree addChildNodeBySelectedNode];
-    [treeView setNeedsDisplay:YES];
+    [self.treeView.tree addChildNodeBySelectedNode];
+    [self.treeView setNeedsDisplay:YES];
 }
 
 - (IBAction)remove:(id)sender {
-    [treeView.tree deleteSelectedNode];
-    [treeView setNeedsDisplay:YES];
+    [self.treeView.tree deleteSelectedNode];
+    [self.treeView setNeedsDisplay:YES];
+}
+
+- (IBAction)switchTreeMode:(id)sender {
+    
+    [self.treeView switchMode];
+    [self.treeView setNeedsDisplay:YES];
 }
 
 @end

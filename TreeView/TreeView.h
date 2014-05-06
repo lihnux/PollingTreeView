@@ -10,10 +10,12 @@
 
 @class Tree;
 
-@interface TreeView : NSView {
-    Tree *tree;
-}
+@interface TreeView : NSView
 
-@property (retain) Tree *tree;
+@property (nonatomic, strong) Tree *tree;
+
+- (void)initTreeWithMode:(UInt8)mode;
+
+- (void)switchMode;
 
 @end

@@ -8,13 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface TextFieldCell : NSTextFieldCell {
-    BOOL bold;
-    BOOL italic;
-}
+@interface TextFieldCell : NSTextFieldCell
 
-@property (nonatomic, assign, getter = isBold)      BOOL bold;
-@property (nonatomic, assign, getter = isItalic)    BOOL italic;
+@property (nonatomic, assign) BOOL                  bold;
+@property (nonatomic, assign) BOOL                  italic;
 
 - (NSSize)sizeForCurrentTitle;
 

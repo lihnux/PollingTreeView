@@ -37,36 +37,23 @@ enum {
 @class TextFieldCell;
 
 @interface TreeNode : NSObject<NSTextDelegate> {
-    
-    Tree            *tree;
-    
-    TreeNode        *parent;
-    NSString        *title;
-    NSString        *content;
-    UInt8           type;
-    UInt8           mode;
-    BOOL            selected;
-    
-    NSMutableArray  *children;
-    
-    NSRect          nodeRect;
-    NSRect          textRect;
-    
-    NSText          *editTextView;
+        
+    NSText *editTextView;
 }
 
-@property (nonatomic, assign)                       Tree            *tree;
-@property (nonatomic, assign)                       TreeNode        *parent;
+@property (nonatomic, weak)                         Tree            *tree;
+@property (nonatomic, weak)                         TreeNode        *parent;
 @property (nonatomic, copy)                         NSString        *title;
 @property (nonatomic, copy)                         NSString        *content;
 @property (nonatomic, assign)                       UInt8           type;
 @property (nonatomic, assign)                       UInt8           mode;
 @property (nonatomic, assign, getter = isSelected)  BOOL            selected;
-@property (nonatomic, retain)                       NSMutableArray  *children;
-@property (nonatomic, readonly)                     NSRect          nodeRect;
-@property (nonatomic, readonly)                     NSRect          textRect;
+@property (nonatomic, strong)                       NSMutableArray  *children;
+@property (nonatomic, assign)                       NSRect          nodeRect;
+@property (nonatomic, assign)                       NSRect          textRect;
 
 - (id)initWithTree:(Tree*)aTree parent:(TreeNode*)aParent title:(NSString*)aTitle content:(NSString*)aContent type:(UInt8)aType mode:(UInt8)aMode;
+- (void)switchMode:(UInt8)mode;
 
 - (id)addNewNodeWithTitle:(NSString*)aTitle content:(NSString*)aContent;
 - (BOOL)addNewNodeBySelectedNode;
