@@ -16,4 +16,6 @@
 @property (nonatomic, assign, getter = isBold)      BOOL bold;
 @property (nonatomic, assign, getter = isItalic)    BOOL italic;
 
+- (NSSize)sizeForCurrentTitle;
+
 @end

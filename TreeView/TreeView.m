@@ -109,7 +109,7 @@
     NSRectFill([self bounds]);
 	
     // Drawing code here.
-    [self initTreeWithMode:pollingAnswerMode];
+    [self initTreeWithMode:pollingCreateMode];
     
     [tree treeDrawInRect:[self frame]];
 }

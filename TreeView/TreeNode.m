@@ -100,7 +100,9 @@
         
         [text setHighlighted:selected];
     }
-    CGFloat height = [text cellSizeForBounds:NSMakeRect(0.0, 0.0, rect->size.width, 1000.0)].height;
+    //CGFloat height = [text cellSizeForBounds:NSMakeRect(0.0, 0.0, rect->size.width, 1000.0)].height;
+    
+    CGFloat height = [text sizeForCurrentTitle].height + 3.0;
     
     if (height < 20.0) {
         height = 20.0;
